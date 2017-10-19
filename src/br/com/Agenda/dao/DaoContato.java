@@ -19,9 +19,10 @@ public class DaoContato implements ModeloDeDao<Contato>{
 	@Override
 	public void criar(Contato t) {
 		try{
-			PreparedStatement comando=conexao.prepareStatement("INSERT INTO contato (nome, numeroTelefone) VALUES (?,?)");
+			PreparedStatement comando=conexao.prepareStatement("INSERT INTO contato (nome, numeroTelefone, favorito) VALUES (?,?,?)");
 			comando.setString(1, t.getNome());
 			comando.setString(2, t.getNumeroTelefone());
+			comando.setBoolean(3, t.isFavorito());
 			comando.execute();
 			comando.close();
 			conexao.close();
@@ -62,26 +63,15 @@ public class DaoContato implements ModeloDeDao<Contato>{
 	@Override
 	public void atualizar(Contato t) {
 		try{
-			PreparedStatement comando=conexao.prepareStatement("UPDATE contato SET nome=?, numeroTelefone=? WHERE id=?");
+			PreparedStatement comando=conexao.prepareStatement("UPDATE contato SET nome=?, numeroTelefone=?, favorito=? WHERE id=?");
 			comando.setString(1, t.getNome());
 			comando.setString(2, t.getNumeroTelefone());
-			comando.setLong(3, t.getId());
+			comando.setBoolean(3, t.isFavorito());
+			comando.setLong(4, t.getId());
 			comando.execute();
 			conexao.close();
 		}catch(SQLException e){
 			throw new RuntimeException("Erro no DaoContato(Atualizar): "+e.getMessage());
-		}
-	}
-
-	public void favoritarContato(Long id, boolean favorito){
-		try {
-			PreparedStatement comando=conexao.prepareStatement(favorito==true?"UPDATE contato SET favorito=1 WHERE ":"UPDATE contato SET favorito=0 WHERE id=?");
-			comando.setLong(1, id);
-			comando.execute();
-			comando.close();
-			conexao.close();
-		}catch(SQLException e){
-			throw new RuntimeException("Erro no DaoContato(Favoritar contato): "+e.getMessage());
 		}
 	}
 	
@@ -103,6 +93,23 @@ public class DaoContato implements ModeloDeDao<Contato>{
 		try{
 			List<Contato> lista=new ArrayList<>();
 			PreparedStatement comando=conexao.prepareStatement("SELECT * FROM contato");
+			ResultSet rs=comando.executeQuery();
+			while(rs.next()){
+				lista.add(recuperarInformacao(rs));
+			}
+			rs.close();
+			comando.close();
+			conexao.close();
+			return lista;
+		}catch(SQLException e){
+			throw new RuntimeException("Erro no DaoContato(Listar Todos): "+e.getMessage());
+		}
+	}
+	
+	public List<Contato> listarApenasFavoritos() {
+		try{
+			List<Contato> lista=new ArrayList<>();
+			PreparedStatement comando=conexao.prepareStatement("SELECT * FROM contato ORDER BY favorito desc");
 			ResultSet rs=comando.executeQuery();
 			while(rs.next()){
 				lista.add(recuperarInformacao(rs));

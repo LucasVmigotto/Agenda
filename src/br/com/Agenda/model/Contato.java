@@ -5,6 +5,15 @@ public class Contato {
 	private String nome;
 	private String numeroTelefone;
 	private boolean favorito;
+	
+	public Contato() {
+		
+	}
+	
+	public Contato(String nome, String telefone) {
+		this.nome=nome;
+		this.numeroTelefone=telefone;
+	}
 	public Long getId() {
 		return id;
 	}
@@ -31,7 +40,7 @@ public class Contato {
 	}
 	@Override
 	public String toString() {
-		return "Pessoa [id=" + id + ", nome=" + nome + ", numeroTelefone=" + numeroTelefone + ", favorito=" + favorito
+		return "Contato [id=" + id + ", nome=" + nome + ", numeroTelefone=" + numeroTelefone + ", favorito=" + favorito
 				+ "]";
 	}
 }
